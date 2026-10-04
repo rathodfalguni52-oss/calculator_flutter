@@ -39,7 +39,9 @@ class _MyHomePageState extends State<MyHomePage> {
     try{
       String expression=UserInput;
       expression=expression.replaceAll('X', '*');
-      expression=expression.replaceAll('divide', '/');
+      // expression=expression.replaceAll('divide', '/');
+      expression=expression.replaceAll(',', '');
+      expression=expression.replaceAll('%', '/100');
       Parser parser=Parser();
       Expression exp=parser.parse(expression);
       ContextModel contextModel=ContextModel();
@@ -63,9 +65,22 @@ class _MyHomePageState extends State<MyHomePage> {
       else if(value=='='){
         calculateResult();
       }
+      else if(value=='backspace')
+        {
+          if(UserInput.isNotEmpty)
+            {
+              UserInput=UserInput.substring(0,UserInput.length-1);
+            }
+        }
       else if(value=='%'){
-        // UserInput=value;
+        if(UserInput.isNotEmpty)
+          {
+            UserInput+='%';
+          }
       }
+      // else if(value==',') {
+      //
+      //   }
       else{
         UserInput+=value;
       }
@@ -103,11 +118,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       Text(UserInput,style: const TextStyle(fontSize: 24,color: Colors.grey),),
                       SizedBox(height: 10,),
-                      Text(result,style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF212121)
-                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(result,
+                        style: const TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF212121)
+                        ),),
                       )
                     ],
                   )
@@ -126,243 +144,36 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisSpacing: 35,
                     crossAxisSpacing: 20,
                     children: [
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('C');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFEEC2EE),
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('C',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('<');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFEEC2EE),
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Icon(Icons.backspace,size: 30)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('%');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFEEC2EE),
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('%',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('divide');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF813B98),
-                              foregroundColor: Colors.white,
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Icon(CupertinoIcons.divide,size: 30)),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('7');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('7',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('8');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('8',style: TextStyle(fontSize: 30))
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('9');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('9',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('X');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF813B98),
-                              foregroundColor: Colors.white,
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Icon(CupertinoIcons.multiply,size: 30)),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('4');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('4',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('5');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('5',style: TextStyle(fontSize: 30))
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('6');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('6',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('-');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF813B98),
-                              foregroundColor: Colors.white,
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Icon(CupertinoIcons.minus,size: 30)),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('1');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('1',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('2');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('2',style: TextStyle(fontSize: 30),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('3');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('3',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('+');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF813B98),
-                              foregroundColor: Colors.white,
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Icon(CupertinoIcons.plus,size: 30)),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('0');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('0',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('0');
-                      },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Color(0xFF1D192B),
-
-                          ),
-                          child: Text('0',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('.');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Color(0xFF1D192B),
-                              shape: CircleBorder(),
-                              elevation: 2
-                          ),
-                          child: Text('.',style: TextStyle(
-                              fontSize: 30
-                          ),)
-                      ),
-                      ElevatedButton(onPressed: (){
-                        buttonPressed('=');
-                      },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF813B98),
-                              foregroundColor: Colors.white,
-                              shape: CircleBorder(),
-                              minimumSize: Size(72, 72),
-                              elevation: 0
-                          ),
-                          child: Icon(CupertinoIcons.equal,size: 30)),
+                      calculatorButton('C',backgroundColor: const Color(0xFFEEC2EE)),
+                      calculatorButton('backspace',backgroundColor: Color(0xFFEEC2EE),icon: Icons.backspace),
+                      calculatorButton('%',backgroundColor: Color(0xFFEEC2EE)),
+                      calculatorButton('/',backgroundColor: Color(0xFF813B98),
+                      foregroundColor: Colors.white,
+                      icon: CupertinoIcons.divide),
+                      calculatorButton('7'),
+                      calculatorButton('8'),
+                      calculatorButton('9'),
+                      calculatorButton('X',backgroundColor: Color(0xFF813B98),foregroundColor: Colors.white,
+                      icon: CupertinoIcons.multiply),
+                      calculatorButton('4'),
+                      calculatorButton('5'),
+                      calculatorButton('6'),
+                      calculatorButton('-',
+                      backgroundColor: Color(0xFF813B98),
+                      foregroundColor: Colors.white,
+                      icon: CupertinoIcons.minus),
+                      calculatorButton('1'),
+                      calculatorButton('2'),
+                      calculatorButton('3'),
+                      calculatorButton('+',backgroundColor: Color(0xFF813B98),
+                      foregroundColor: Colors.white,
+                      icon: CupertinoIcons.plus),
+                      calculatorButton(','),
+                      calculatorButton('0'),
+                      calculatorButton('.'),
+                      calculatorButton('=',backgroundColor: Color(0xFF813B98),
+                      foregroundColor: Colors.white,
+                      icon: CupertinoIcons.equal),
                     ],
                   ),)
                 )
@@ -371,4 +182,24 @@ class _MyHomePageState extends State<MyHomePage> {
       )
     );
   }
+  Widget calculatorButton(String value,{
+        Color backgroundColor=Colors.white,
+        Color foregroundColor=const Color(0xFF1D192B),
+        IconData? icon,
+  })
+  {
+    return ElevatedButton
+      (onPressed: () {
+      buttonPressed(value);
+    },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
+          shape: CircleBorder(),
+          elevation: 2,
+        ),
+        child: icon!=null? Icon(icon,size: 30):Text(value,style: TextStyle(fontSize: 30),)
+    );
+  }
+
 }
