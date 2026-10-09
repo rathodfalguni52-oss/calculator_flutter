@@ -36,26 +36,26 @@ def evaluate_expression(expression):
                 operation=OPERATORS.get(type(node.op))
                 if operation is None:
                     raise ValueError("Unsupported operator")
-                    left=evaluate(node.left)
-                    right=evaluate(node.right)
+                left=evaluate(node.left)
+                right=evaluate(node.right)
                 if isinstance(node.op,ast.Div) and right==0:
                     raise ValueError("Cannot divide by zero")
-                    result=operation(left,right)
+                result=operation(left,right)
                 if isinstance(result,(int,float)):
                     if abs(result)>1e100:
                         raise ValueError("Result is too large")
-                        return result
+                return result
             if isinstance(node,ast.UnaryOp):
                 operation=OPERATORS.get(type(node.op))
                 if operation is None:
                     raise ValueError("Unsupported operator")
-                    return operation(evaluate(node.operand))
+                return operation(evaluate(node.operand))
             raise ValueError("Unsupported expression")
         result=evaluate(tree)
         if isinstance(result,float):
             if not(-float("inf")<result<float("inf")):
                 raise ValueError("Result is not finite")
-            return result
+        return result
 
 @app.route("/calculate",methods=["POST"])
 def calculate():
@@ -70,11 +70,12 @@ def calculate():
     except (ValueError,ZeroDivisionError,OverflowError):
         return jsonify({"Error":"Invalid calculation"}),400
 
-    formatted_result=(
-    str(answer)
-    if isinstance(answer,int)
-    else format(answer,".10g")
-    )
+    if isinstance(answer,int):
+        formatted_result=str(answer)
+    elif isinstance(answer,float):
+        formatted_result=format(answer,".10g")
+    else:
+        formatted_result=str(answer)
     connection=get_connection()
     cursor=connection.execute(
     "INSERT INTO history (expression,result) VALUES(?,?)",(expression,formatted_result),
