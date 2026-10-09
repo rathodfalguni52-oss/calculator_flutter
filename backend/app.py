@@ -31,31 +31,31 @@ def evaluate_expression(expression):
         if isinstance(node,ast.Constant):
             if type(node.value) not in (int,float):
                 raise ValueError("Only numbers are allowed")
-                return node.value
-            if isinstance(node,ast.BinOp):
-                operation=OPERATORS.get(type(node.op))
-                if operation is None:
-                    raise ValueError("Unsupported operator")
-                left=evaluate(node.left)
-                right=evaluate(node.right)
-                if isinstance(node.op,ast.Div) and right==0:
-                    raise ValueError("Cannot divide by zero")
-                result=operation(left,right)
-                if isinstance(result,(int,float)):
-                    if abs(result)>1e100:
-                        raise ValueError("Result is too large")
-                return result
-            if isinstance(node,ast.UnaryOp):
-                operation=OPERATORS.get(type(node.op))
-                if operation is None:
-                    raise ValueError("Unsupported operator")
-                return operation(evaluate(node.operand))
-            raise ValueError("Unsupported expression")
-        result=evaluate(tree)
-        if isinstance(result,float):
-            if not(-float("inf")<result<float("inf")):
-                raise ValueError("Result is not finite")
-        return result
+            return node.value
+        if isinstance(node,ast.BinOp):
+            operation=OPERATORS.get(type(node.op))
+            if operation is None:
+                raise ValueError("Unsupported operator")
+            left=evaluate(node.left)
+            right=evaluate(node.right)
+            if isinstance(node.op,ast.Div) and right==0:
+                raise ValueError("Cannot divide by zero")
+            result=operation(left,right)
+            if isinstance(result,(int,float)):
+                if abs(result)>1e100:
+                    raise ValueError("Result is too large")
+            return result
+        if isinstance(node,ast.UnaryOp):
+            operation=OPERATORS.get(type(node.op))
+            if operation is None:
+                raise ValueError("Unsupported operator")
+            return operation(evaluate(node.operand))
+        raise ValueError("Unsupported expression")
+    result=evaluate(tree)
+    if isinstance(result,float):
+        if not(-float("inf")<result<float("inf")):
+            raise ValueError("Result is not finite")
+    return result
 
 @app.route("/calculate",methods=["POST"])
 def calculate():
