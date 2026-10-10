@@ -1,7 +1,9 @@
-import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'history_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,6 +36,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String UserInput='';
   String result='0';
+  String? selectedValue;
+  List<String> history=[];
 
   void calculateResult(){
     try{
@@ -57,13 +61,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
   void buttonPressed(String value){
+    if(value=='='){
+        calculateWithBackend();
+        return;
+      }
     setState(() {
       if (value=='C'){
         UserInput='';
         result='0';
-      }
-      else if(value=='='){
-        calculateResult();
       }
       else if(value=='backspace')
         {
@@ -86,6 +91,118 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
   }
+  // void showHistory(){
+  //   showModalBottomSheet(
+  //       context: context,
+  //       builder: (context){
+  //         return SizedBox(
+  //           height: 400,
+  //           child: Column(
+  //             children: [
+  //               const Padding(padding: EdgeInsets.all(16),
+  //               child: Text('Calculation History',style: TextStyle(
+  //                 fontSize: 22,
+  //                 fontWeight: FontWeight.bold
+  //               ),
+  //               ),
+  //               ),
+  //               const Divider(),
+  //               Expanded(
+  //                   child: history.isEmpty?
+  //               const Center(
+  //                 child: Text('No history yet'),
+  //               ):ListView.builder(
+  //                 itemCount: history.length,
+  //                   itemBuilder: (context,index){
+  //                   return ListTile(
+  //                     leading: Icon(Icons.history),
+  //                     title: Text(history[index]),
+  //                   );
+  //                   })
+  //               )
+  //             ],
+  //           ),
+  //         );
+  //       }
+  //       );
+  // }
+  Future<void> showHistory() async{
+    try{
+      final response=await http.get(
+        Uri.parse('http://127.0.0.0:5000/history'),
+      );
+      if (response.statusCode==200)
+      {
+        final List<dynamic> history=jsonDecode(response.body);
+        if(!mounted) return;
+        showDialog(
+          context: context, 
+          builder: (context){
+            return AlertDialog(
+              title: const Text('Calculation History'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: history.isEmpty?const Text('No calculation history yet'):
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: history.length,
+                  itemBuilder: (context,index){
+                    final item=history[index];
+                    return ListTile(
+                      title: Text(item['expression'].toString()),
+                      subtitle: Text('Result:${item['result']}'
+                      ),
+                    );
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(onPressed: ()=>Navigator.pop(context),
+                 child: const Text('Close'),
+                 ),
+              ],
+            );
+          },
+          );
+      }
+      else{
+        debugPrint('Failed to load history:${response.statusCode}');
+      }
+    }
+    catch(e){
+      debugPrint('History error:$e');
+    }
+  }
+  Future<void> calculateWithBackend() async{
+    try{
+    final response=await http.post(
+      Uri.parse('http://127.0.0.1:5000/calculate'),
+      headers: {
+        'Content-Type':'application/json',
+      },
+      body: jsonEncode({
+        'expression':UserInput,
+      }),
+    );
+    final data=jsonDecode(response.body);
+    if (response.statusCode==201){
+      setState(() {
+        result=data['result'].toString();
+      });
+    }
+    else{
+      setState(() {
+        result=data['Error']?.toString()??'Calculation failed';
+      });
+    }
+    }
+    catch(e){
+      setState(() {
+        result='Connection error';
+      });
+      debugPrint('Backend error:$e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,8 +214,41 @@ class _MyHomePageState extends State<MyHomePage> {
           color: Colors.white,
         ),),
         actions: [
-          Padding(padding: EdgeInsetsGeometry.all(10),
-          child: Icon(Icons.menu,color: Colors.white))
+          // PopupMenuButton<String>(
+          //   icon: Icon(Icons.menu,
+          //   color: Colors.white,
+          //   size: 28),
+          //   color: Color(0xFFEEC2EE),
+          //   onSelected: (value){
+          //     if(value=='history')
+          //       {
+          //         showHistory();
+          //       }
+          //   },
+          //   itemBuilder: (context)=>[
+          //     const PopupMenuItem(
+          //       value: 'history',
+          //         child: Row(
+          //           children: [
+          //             Icon(Icons.history,color: Color(0xFF813B98),
+          //             ),
+          //             SizedBox(width: 10,),
+          //             Text('History',style: TextStyle(color: Color(0xFF1D192B)
+          //             ),
+          //             )
+          //           ],
+          //         )
+          //     )
+          //   ],
+          // )
+          IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> HistoryPage(),
+            )
+            );
+          },
+              icon: Icon(Icons.history),
+            tooltip: 'History',
+          )
         ],
       ),
       body:Column(

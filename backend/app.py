@@ -3,7 +3,9 @@ import operator
 import sqlite3
 from flask import Flask,jsonify,request
 from database import get_connection,initialize_database
+from flask_cors import CORS
 app=Flask(__name__)
+CORS(app)
 initialize_database()
 OPERATORS={
 ast.Add:operator.add,
@@ -67,7 +69,8 @@ def calculate():
         return jsonify({"Error":"Expression is too long"}),400
     try:
         answer=evaluate_expression(expression)
-    except (ValueError,ZeroDivisionError,OverflowError):
+    except (ValueError,ZeroDivisionError,OverflowError) as e:
+        print(f"Real ERROR:{e}")
         return jsonify({"Error":"Invalid calculation"}),400
 
     if isinstance(answer,int):
@@ -119,4 +122,4 @@ def clear_history():
     return jsonify({"message":"History cleared"})
 
 if __name__=="__main__":
-    app.run(host="0.0.0.0",port=5000,debug=False)
+    app.run(host="0.0.0.0",port=5000,debug=True)
